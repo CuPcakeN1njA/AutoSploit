@@ -17,7 +17,7 @@ Receiving back connections on your local machine might not be the best idea from
 
 Clone the repo. Or deploy via Docker. Details for which can be found [here](https://github.com/NullArray/AutoSploit/tree/master/Docker) Special thanks to [Khast3x](https://github.com/khast3x) for their contribution in this regard.
 
-`git clone https://github.com/NullArray/AutoSploit.git`
+`git clone https://github.com/CuPcakeN1njA/AutoSploit.git`
 
 After which it can be started from the terminal with `python autosploit.py`. After which you can select one of five actions. Please see the option summary below.
 ```
