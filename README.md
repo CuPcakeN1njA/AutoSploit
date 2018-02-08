@@ -6,6 +6,9 @@ After this operation has been completed the 'Exploit' component of the program w
 
 The available Metasploit modules have been selected to facilitate Remote Code Execution and to attempt to gain Reverse TCP Shells and/or Meterpreter sessions. Workspace, local host and local port for MSF facilitated back connections are configured through the dialog that comes up before the 'Exploit' component is started.
 
+## My Contribution
+I have added an extra option which allows you to manually input hosts into the hosts.txt file. Therefore if the user wants to elliminate the randomness and launch this tool on a signal target they can easilly do this without having to modify the hosts.txt themselves.
+
 **Operational Security Consideration**
 
 Receiving back connections on your local machine might not be the best idea from an OPSEC standpoint. Instead consider running this tool from a VPS that has all the dependencies required, available.
@@ -23,9 +26,10 @@ After which it can be started from the terminal with `python autosploit.py`. Aft
 +------------------+----------------------------------------------------+
 |1. Usage          | Display this informational message.                |
 |2. Gather Hosts   | Query Shodan for a list of platform specific IPs.  |
-|3. View Hosts     | Print gathered IPs/RHOSTS.                         |
-|4. Exploit        | Configure MSF and Start exploiting gathered targets|
-|5. Quit           | Exits AutoSploit.                                  |
+|3. Add Hosts Man  | Add your own Hosts manually                        |
+|4. View Hosts     | Print gathered IPs/RHOSTS.                         |
+|5. Exploit        | Configure MSF and Start exploiting gathered targets|
+|6. Quit           | Exits AutoSploit.                                  |
 +------------------+----------------------------------------------------+
 ```
 ## Available Modules
@@ -53,5 +57,3 @@ Get it from Rapid7 by clicking [here](https://www.rapid7.com/products/metasploit
 While this isn't exactly a Beta release it is an early release nonetheless as such the tool might be subject to changes in the future. If you happen to encounter a bug or would like to contribute to the tool's improvement please feel free to [Open a Ticket](https://github.com/NullArray/AutoSploit/issues) or [Submit a Pull Request](https://github.com/NullArray/AutoSploit/pulls)
 
 Thanks.
-
-
