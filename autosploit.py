@@ -4,10 +4,9 @@ import os
 import sys
 import pickle
 import time
-
+import shodan
 from subprocess import PIPE, Popen
 
-import shodan
 from blessings import Terminal
 
 t = Terminal()
@@ -25,11 +24,13 @@ toolbar_width = 60
 # Logo
 def logo():
     print t.cyan("""
-                              _____     _       _____     _     _ _   
-#--Author : Vector/NullArray |  _  |_ _| |_ ___|   __|___| |___|_| |_ 
-#--Twitter: @Real__Vector    |     | | |  _| . |__   | . | | . | |  _|
-#--Type   : Mass Exploiter   |__|__|___|_| |___|_____|  _|_|___|_|_|  
-#--Version: 1.0.0                                    |_|             
+                                  _____     _       _____     _     _ _   
+#--Author     : Vector/NullArray |  _  |_ _| |_ ___|   __|___| |___|_| |_ 
+#--Twitter    : @Real__Vector    |     | | |  _| . |__   | . | | . | |  _|
+#--Type       : Mass Exploiter   |__|__|___|_| |___|_____|  _|_|___|_|_|  
+#--Version    : 1.0.0                                    |_|             
+#--Modified By: CuPcakeN1njA
+#--Twitter    : @CuPcakeN1njA
 ##############################################
 """)
 
@@ -43,7 +44,8 @@ def usage():
 |            AutoSploit General Usage and Information                   |
 +-----------------------------------------------------------------------+
 |As the name suggests AutoSploit attempts to automate the exploitation  |
-|of remote hosts. Targets are collected by employing the Shodan.io API. |
+|of remote hosts. Targets are collected by employing the Shodan.io API  |
+|or you can add them manually.                                          |
 |                                                                       |
 |The 'Gather Hosts' option will open a dialog from which you can        |
 |enter platform specific search queries such as 'Apache' or 'IIS'.      |
@@ -52,6 +54,9 @@ def usage():
 |After this operation has been completed the 'Exploit' option will      |
 |go about the business of attempting to exploit these targets by        |
 |running a range of Metasploit modules against them.                    |
+|                                                                       |
+|The 'Add Hosts Man' option allows you to add selected hosts to the     |
+|host file.                                                             |
 |                                                                       |
 |Workspace, local host and local port for MSF facilitated               |
 |back connections are configured through the dialog that comes up       |
@@ -62,9 +67,10 @@ def usage():
 +------------------+----------------------------------------------------+
 |1. Usage          | Display this informational message.                |
 |2. Gather Hosts   | Query Shodan for a list of platform specific IPs.  |
-|3. View Hosts     | Print gathered IPs/RHOSTS.                         |
-|4. Exploit        | Configure MSF and Start exploiting gathered targets|
-|5. Quit           | Exits AutoSploit.                                  |
+|3. Add Hosts Man  | Add your own Hosts manually                        |
+|4. View Hosts     | Print gathered IPs/RHOSTS.                         |
+|5. Exploit        | Configure MSF and Start exploiting gathered targets|
+|6. Quit           | Exits AutoSploit.                                  |
 +------------------+----------------------------------------------------+
 |                         Legal Disclaimer                              |
 +-----------------------------------------------------------------------+
@@ -210,9 +216,68 @@ def targets(clobber=True):
 
         hostpath = os.path.abspath("hosts.txt")
 
-        print "\n\n\n[" + t.green("+") + "]Done."
+        print "\n[" + t.green("+") + "]Done."
         print "[" + t.green("+") + "]Hosts appended to list at " + hostpath
 
+# Check IP is valid format
+def isIp(target):
+    try:
+        counter = 0
+        ip = target.split(".")
+        for i in ip:
+                if counter > 4:
+                        return False
+                if int(i) > 255:
+                        return False
+                counter += 1
+        if counter < 4:
+	    return False
+	else:
+	    return True
+    except:
+        return False
+
+# Added function to add Hosts Manually
+def manualTargets(clobber=True):
+    global result
+
+    os.system("clear")
+    logo()
+
+    print "[" + t.green("+") + "]Please provide the IP of the Target"
+
+    while True:
+        result = raw_input("\n<" + t.cyan("RHOST") + ">$ ")
+
+        if result == "":
+            print "[" + t.red("!") + "]Query cannot be null."
+        elif not isIp(result):
+            print "[" + t.red("!") + "]Query Must be a valid IP."
+	else:
+		break
+
+    print "[" + t.green("+") + "]Please wait whilst host is added to hosts.txt...\n"
+    time.sleep(1)
+
+    if clobber == True:
+        with open('hosts.txt', 'wb') as log:
+                    log.write(result)
+                    log.write("\n")
+
+        hostpath = os.path.abspath("hosts.txt")
+
+        print "\n[" + t.green("+") + "]Done."
+        print "[" + t.green("+") + "]Host list saved to " + hostpath
+
+    else:
+        with open("hosts.txt", "ab") as log:
+                    log.write(result)
+                    log.write("\n")
+
+        hostpath = os.path.abspath("hosts.txt")
+
+        print "\n[" + t.green("+") + "]Done."
+        print "[" + t.green("+") + "]Hosts appended to list at " + hostpath
 
 # Function to define metasploit settings
 def settings():
@@ -301,8 +366,8 @@ def main():
             print "\n[" + t.green("+") + "]Welcome to AutoSploit. Please select an action."
             print """
 		
-1. Usage		3. View Hosts		5. Quit
-2. Gather Hosts		4. Exploit 					
+1. Usage		3. Add Hosts Manually	5. Exploit
+2. Gather Hosts		4. View Hosts 		6. Quit			
 									"""
 
             action = raw_input("\n<" + t.cyan("AUTOSPLOIT") + ">$ ")
@@ -322,8 +387,22 @@ def main():
                         targets(True)
                     else:
                         print "\n[" + t.red("!") + "]Unhandled Option."
+	    
+	    elif action == '3':
+		if not os.path.isfile("hosts.txt"):
+                    manualTargets(True)
+                else:
+                    append = raw_input("\n[" + t.magenta("?") + "]Append hosts to file or overwrite? [A/O]: ").lower()
 
-            elif action == '3':
+                    if append == 'a':
+                        manualTargets(False)
+                    elif append == 'o':
+                        manualTargets(True)
+                    else:
+                        print "\n[" + t.red("!") + "]Unhandled Option."
+
+
+            elif action == '4':
                 if not os.path.isfile("hosts.txt"):
                     print "\n[" + t.red("!") + "]Warning. AutoSploit failed to detect host file."
 
@@ -337,7 +416,7 @@ def main():
 
                     print "[" + t.green("+") + "]Done.\n"
 
-            elif action == '4':
+            elif action == '5':
                 if not os.path.isfile("hosts.txt"):
                     print "\n[" + t.red("!") + "]Warning. AutoSploit failed to detect host file."
                     print "Please make sure to gather a list of targets"
@@ -349,7 +428,7 @@ def main():
                 elif configured == False:
                     settings()
 
-            elif action == '5':
+            elif action == '6':
                 print "\n[" + t.red("!") + "]Exiting AutoSploit..."
                 break
 
